@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using DirTree.Properties;
+using Spectre.Console;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,13 +11,13 @@ namespace DirTree
     /// </summary>
     internal static class AppInfo
     {
-        public const string Name = "DirTree";
-        public const string Version = "1.1.0";
-        public const string Author = "Vitaliy Magnum";
-        public const string Year = "2026";
-        public const string License = "MIT";
-        public const string GitHub = "https://github.com/Magnumv44/DirTree";
-        public const string Desc = "Консольна утиліта для відображення структури каталогу з розмірами файлів.";
+        public static readonly string Name = Resources.Name;
+        public static readonly string Version = Resources.Version;
+        public static readonly string Author = Resources.Author;
+        public static readonly string Year = Resources.Year;
+        public static readonly string License = Resources.License;
+        public static readonly string GitHub = Resources.GitHub;
+        public static readonly string Desc = Resources.DescriptionAppInfo;
     }
 
     /// <summary>
