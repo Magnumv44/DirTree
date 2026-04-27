@@ -228,13 +228,11 @@ namespace DirTree
 
             var panel = new Panel(
                 $"[white]Каталог:[/] [{Cfg.SummaryPath}]{Markup.Escape(dirInfo.FullName)}[/]\n" +
-                $"[white]Загальний розмір:[/] [{Cfg.SummarySize}]{FormatSize(totalSize)}[/]"
-            )
-            {
-                Border = BoxBorder.Rounded,
-                BorderStyle = Style.Parse("grey"),
-                Header = new PanelHeader("[dim] Підсумок [/]")
-            };
+                $"[white]Загальний розмiр:[/] [{Cfg.SummarySize}]{FormatSize(totalSize)}[/]"
+            ).RoundedBorder()
+             .BorderColor(Color.Grey)
+             .Header("[lightgreen] Пiдсумок [/]");
+
             AnsiConsole.Write(panel);
             AnsiConsole.WriteLine();
 
@@ -465,24 +463,24 @@ namespace DirTree
         };
 
         // Константи інтерективного меню
-        const string OPT_SAVE_WITH = "💾  Зберегти у файл          (з розмірами)";
-        const string OPT_SAVE_WITHOUT = "💾  Зберегти у файл          (без розмірів)";
-        const string OPT_COPY_WITH = "📋  Скопіювати в буфер       (з розмірами)";
-        const string OPT_COPY_WITHOUT = "📋  Скопіювати в буфер       (без розмірів)";
-        const string OPT_ABOUT = "ℹ️   Про програму та автора";
-        const string OPT_EXIT = "🚪  Вийти з утиліти";
-        const string OPT_EXIT_TERM = "🔴  Вийти з утиліти та закрити термінал";
+        const string OPT_SAVE_WITH = "💾  Зберегти у файл          (з розмiрами)";
+        const string OPT_SAVE_WITHOUT = "💾  Зберегти у файл          (без розмiрiв)";
+        const string OPT_COPY_WITH = "📋  Скопiювати в буфер       (з розмiрами)";
+        const string OPT_COPY_WITHOUT = "📋  Скопiювати в буфер       (без розмiрiв)";
+        const string OPT_ABOUT = "ℹ️  Про програму та автора";
+        const string OPT_EXIT = "🚪  Вийти з утилiти";
+        const string OPT_EXIT_TERM = "🔴  Вийти з утилiти та закрити термiнал";
 
         static void ShowMenu(string treeText, string baseDir)
         {
             while (true)
             {
-                AnsiConsole.Write(new Rule("[grey]Дії[/]").RuleStyle("grey dim"));
+                AnsiConsole.Write(new Rule("[grey]Дiї[/]").RuleStyle("grey dim"));
                 AnsiConsole.WriteLine();
 
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
-                        .Title("Оберіть дію [grey](↑↓ стрілки, Enter — вибір)[/]:")
+                        .Title("Оберiть дiю [grey](↑↓ стрiлки, Enter — вибiр)[/]:")
                         .HighlightStyle(Style.Parse("cyan bold"))
                         .AddChoices(
                             OPT_SAVE_WITH,
@@ -604,27 +602,7 @@ namespace DirTree
         {
             if (OperatingSystem.IsWindows())
             {
-                try
-                {
-                    int parentPid = GetParentPidWindows();
-                    if (parentPid > 0)
-                    {
-                        var parent = System.Diagnostics.Process.GetProcessById(parentPid);
-                        var name = parent.ProcessName.ToLowerInvariant();
-
-                        if (name.Contains("wt") || name.Contains("windowsterminal"))
-                        { parent.CloseMainWindow(); return; }
-
-                        if (name.Contains("cmd"))
-                        { RunCliProcessNoInput("cmd.exe", "/c exit"); return; }
-
-                        if (name.Contains("powershell") || name.Contains("pwsh"))
-                        { RunCliProcessNoInput("powershell.exe", "-Command \"exit\""); return; }
-
-                        parent.CloseMainWindow();
-                    }
-                }
-                catch { }
+                CloseTerminalWindows();
             }
             else if (OperatingSystem.IsMacOS())
             {
@@ -636,6 +614,134 @@ namespace DirTree
                 try { int ppid = GetParentPidLinux(); if (ppid > 0) kill(ppid, 1); }
                 catch { }
             }
+        }
+
+        static void CloseTerminalWindows()
+        {
+            try
+            {
+                int parentPid = GetParentPidWindows();
+                if (parentPid <= 0) return;
+
+                var parent = System.Diagnostics.Process.GetProcessById(parentPid);
+                var name = parent.ProcessName.ToLowerInvariant();
+
+                // pwsh / powershell / cmd / bash — можуть бути дочірніми wt.
+                // Піднімаємось на рівень вище — перевіряємо чи дід є wt.
+                if (name.Contains("powershell") || name.Contains("pwsh") ||
+                    name.Contains("cmd") || name.Contains("bash") ||
+                    name.Contains("conhost"))
+                {
+                    int grandPid = GetParentPidOfProcess(parentPid);
+                    if (grandPid > 0)
+                    {
+                        try
+                        {
+                            var grand = System.Diagnostics.Process.GetProcessById(grandPid);
+                            var grandName = grand.ProcessName.ToLowerInvariant();
+                            if (grandName.Contains("wt") || grandName.Contains("windowsterminal"))
+                            {
+                                // Запущено всередині wt — закриваємо саме вікно wt
+                                ScheduleWtClose(grandPid);
+                                return;
+                            }
+                        }
+                        catch { }
+                    }
+                    // Не в wt — звичайне вікно консолі
+                    ScheduleTaskkill(parentPid);
+                    return;
+                }
+
+                // Прямий батько — вже wt
+                if (name.Contains("wt") || name.Contains("windowsterminal"))
+                {
+                    ScheduleWtClose(parentPid);
+                    return;
+                }
+
+                // Будь-який інший термінал — Universal fallback
+                ScheduleTaskkill(parentPid);
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Закриває Windows Terminal (wt.exe) надсилаючи WM_CLOSE через PowerShell
+        /// з EncodedCommand щоб уникнути проблем з лапками.
+        /// Вбиваємо саме wt.exe — вікно закривається без повідомлення "код 1",
+        /// бо wt.exe є власником вікна, а не дочірня оболонка.
+        /// </summary>
+        static void ScheduleWtClose(int wtPid)
+        {
+            // Будуємо PowerShell скрипт частинами, щоб уникнути вкладених лапок.
+            // Add-Type блок — звичайний string (не interpolated), лапки безпечні.
+            string addType =
+                "Add-Type -TypeDefinition '" +
+                "using System; " +
+                "using System.Runtime.InteropServices; " +
+                "public class NativeMsg { " +
+                "  [DllImport(\"user32.dll\")] " +
+                "  public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l); " +
+                "}';";
+
+            // Частини скрипту що потребують wtPid — interpolated окремо, без лапок всередині.
+            string script =
+                $"Start-Sleep -Milliseconds 800;" +
+                $"$p = Get-Process -Id {wtPid} -ErrorAction SilentlyContinue;" +
+                $"if ($p) {{" +
+                $"  $hwnd = $p.MainWindowHandle;" +
+                $"  if ($hwnd -ne [IntPtr]::Zero) {{" +
+                addType +
+                $"    [NativeMsg]::PostMessage($hwnd, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero);" +
+                $"    Start-Sleep -Milliseconds 500;" +
+                $"  }}" +
+                $"  if (!$p.HasExited) {{ Stop-Process -Id {wtPid} -Force }}" +
+                $"}}";
+
+            byte[] encoded = System.Text.Encoding.Unicode.GetBytes(script);
+            string encodedCmd = Convert.ToBase64String(encoded);
+
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -NonInteractive -WindowStyle Hidden -EncodedCommand {encodedCmd}",
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            System.Diagnostics.Process.Start(psi);
+        }
+
+        /// <summary>
+        /// Закриває звичайне вікно консолі (cmd, pwsh без wt) через taskkill.
+        /// </summary>
+        static void ScheduleTaskkill(int pid)
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c ping -n 2 127.0.0.1 >nul & taskkill /F /PID {pid}",
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            System.Diagnostics.Process.Start(psi);
+        }
+
+        /// <summary>
+        /// Повертає PID батьківського процесу для довільного PID.
+        /// </summary>
+        static int GetParentPidOfProcess(int pid)
+        {
+            if (!OperatingSystem.IsWindows()) return -1;
+            try
+            {
+                var target = System.Diagnostics.Process.GetProcessById(pid);
+                var pbi = new PROCESS_BASIC_INFORMATION();
+                int status = NtQueryInformationProcess(
+                    target.Handle, 0, ref pbi, Marshal.SizeOf(pbi), out _);
+                return status == 0 ? (int)pbi.InheritedFromUniqueProcessId : -1;
+            }
+            catch { return -1; }
         }
 
         static void RunCliProcessNoInput(string fileName, string arguments)
