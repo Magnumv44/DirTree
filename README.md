@@ -6,7 +6,7 @@
 - Технологічний набір:
    - [**.NET 10**](https://dotnet.microsoft.com/ru-ru/download/dotnet/10.0 "Натисніть щоб відкрити посилання")
    - [**Spectre.Console**](https://spectreconsole.net "Натисніть щоб відкрити посилання")
-- Ліцензія: [**MIT**](DirTree?tab=MIT-1-ov-file "Натисніть щоб відкрити ліцензію")
+- Ліцензія: [**MIT**](https://github.com/Magnumv44/DirTree?tab=MIT-1-ov-file "Натисніть щоб відкрити ліцензію")
 
 ---
 
