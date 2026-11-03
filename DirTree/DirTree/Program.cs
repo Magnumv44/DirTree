@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace DirTree
 {
+    #region Метадані програми DirTree
     /// <summary>
     /// Метадані програми DirTree, включаючи назву, версію, автора, рік, ліцензію та опис.
     /// </summary>
@@ -19,7 +20,9 @@ namespace DirTree
         public static readonly string GitHub = Resources.GitHub;
         public static readonly string Desc = Resources.DescriptionAppInfo;
     }
+    #endregion
 
+    #region Контанти ключів підтримуваних команд
     /// <summary>
     /// Клас з константними значеннями для підтримуваних ключів аргументів командного рядка.
     /// </summary>
@@ -33,7 +36,9 @@ namespace DirTree
         public const string CopyWith = "--copy";
         public const string CopyWithout = "--copy-clean";
     }
+    #endregion
 
+    #region Клас створення файлу налаштувань
     /// <summary>
     /// Клас представлення налаштування конфігурації кольорів для різних елементів у відображенні дерева каталогів,
     /// включаючи типи файлів, лінії дерева та панелі зведення.
@@ -135,7 +140,9 @@ namespace DirTree
             File.WriteAllText(ConfigPath, sb.ToString(), Encoding.UTF8);
         }
     }
+    #endregion
 
+    #region Головний клас запуску програми
     /// <summary>
     /// Основний клас програми
     /// </summary>
@@ -361,9 +368,7 @@ namespace DirTree
             AnsiConsole.WriteLine();
         }
 
-        // ═══════════════════════════════════════════════════════════════════════
-        //  Побудова дерева
-        // ═══════════════════════════════════════════════════════════════════════
+        #region Побудова дерева
         /// <summary>
         /// Рекурсивно створює візуальне представлення дерева каталогів, включаючи імена файлів, каталогів та їх розміри.
         /// </summary>
@@ -422,7 +427,9 @@ namespace DirTree
                 }
             }
         }
+        #endregion
 
+        // TODO: Dictionary<string, string>, краще щоб можливо завантажувалось з окремого файлу
         static string ExtColor(string ext) => ext switch
         {
             ".cs" or ".cpp" or ".c" or ".h" or ".py" or ".js" or ".ts"
@@ -472,6 +479,7 @@ namespace DirTree
         const string OPT_EXIT = "🚪  Вийти з утилiти";
         const string OPT_EXIT_TERM = "🔴  Вийти з утилiти та закрити термiнал";
 
+        // TODO: Можуть не виводитись емодзі, перевірити метод і змінити, щоб вивід став коректним
         static void ShowMenu(string treeText, string baseDir)
         {
             while (true)
@@ -836,4 +844,5 @@ namespace DirTree
         [DllImport("libc", EntryPoint = "kill")]
         private static extern int kill(int pid, int sig);
     }
+    #endregion
 }
