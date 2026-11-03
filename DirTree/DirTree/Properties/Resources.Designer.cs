@@ -61,11 +61,47 @@ namespace DirTree.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to :information:  Про програму та автора.
+        /// </summary>
+        internal static string AboutProgram {
+            get {
+                return ResourceManager.GetString("AboutProgram", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Vitaliy Magnum.
         /// </summary>
         internal static string Author {
             get {
                 return ResourceManager.GetString("Author", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Закриваємо термінал ....
+        /// </summary>
+        internal static string ClosingTerminal {
+            get {
+                return ResourceManager.GetString("ClosingTerminal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to :clipboard:  Скопiювати в буфер (з розмiрами).
+        /// </summary>
+        internal static string CopyWith {
+            get {
+                return ResourceManager.GetString("CopyWith", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to :clipboard:  Скопiювати в буфер (без розмiрiв).
+        /// </summary>
+        internal static string CopyWithout {
+            get {
+                return ResourceManager.GetString("CopyWithout", resourceCulture);
             }
         }
         
@@ -79,11 +115,38 @@ namespace DirTree.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to :door:  Вийти з утилiти.
+        /// </summary>
+        internal static string Exit {
+            get {
+                return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to :red_circle:  Вийти з утилiти та закрити термiнал.
+        /// </summary>
+        internal static string ExitAndClose {
+            get {
+                return ResourceManager.GetString("ExitAndClose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to https://github.com/Magnumv44/DirTree.
         /// </summary>
         internal static string GitHub {
             get {
                 return ResourceManager.GetString("GitHub", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to До побачення!.
+        /// </summary>
+        internal static string Goodby {
+            get {
+                return ResourceManager.GetString("Goodby", resourceCulture);
             }
         }
         
@@ -102,6 +165,24 @@ namespace DirTree.Properties {
         internal static string Name {
             get {
                 return ResourceManager.GetString("Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to :floppy_disk:  Зберегти у файл (з розмiрами).
+        /// </summary>
+        internal static string SaveWith {
+            get {
+                return ResourceManager.GetString("SaveWith", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to :floppy_disk:  Зберегти у файл (без розмiрiв).
+        /// </summary>
+        internal static string SaveWithout {
+            get {
+                return ResourceManager.GetString("SaveWithout", resourceCulture);
             }
         }
         

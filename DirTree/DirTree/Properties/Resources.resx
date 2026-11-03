@@ -117,20 +117,47 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AboutProgram" xml:space="preserve">
+    <value>:information:  Про програму та автора</value>
+  </data>
   <data name="Author" xml:space="preserve">
     <value>Vitaliy Magnum</value>
+  </data>
+  <data name="ClosingTerminal" xml:space="preserve">
+    <value>Закриваємо термінал ...</value>
+  </data>
+  <data name="CopyWith" xml:space="preserve">
+    <value>:clipboard:  Скопiювати в буфер (з розмiрами)</value>
+  </data>
+  <data name="CopyWithout" xml:space="preserve">
+    <value>:clipboard:  Скопiювати в буфер (без розмiрiв)</value>
   </data>
   <data name="DescriptionAppInfo" xml:space="preserve">
     <value>Консольна утиліта для відображення структури каталогу з розмірами файлів.</value>
   </data>
+  <data name="Exit" xml:space="preserve">
+    <value>:door:  Вийти з утилiти</value>
+  </data>
+  <data name="ExitAndClose" xml:space="preserve">
+    <value>:red_circle:  Вийти з утилiти та закрити термiнал</value>
+  </data>
   <data name="GitHub" xml:space="preserve">
     <value>https://github.com/Magnumv44/DirTree</value>
+  </data>
+  <data name="Goodby" xml:space="preserve">
+    <value>До побачення!</value>
   </data>
   <data name="License" xml:space="preserve">
     <value>MIT</value>
   </data>
   <data name="Name" xml:space="preserve">
     <value>DirTree</value>
+  </data>
+  <data name="SaveWith" xml:space="preserve">
+    <value>:floppy_disk:  Зберегти у файл (з розмiрами)</value>
+  </data>
+  <data name="SaveWithout" xml:space="preserve">
+    <value>:floppy_disk:  Зберегти у файл (без розмiрiв)</value>
   </data>
   <data name="Version" xml:space="preserve">
     <value>1.1.0</value>

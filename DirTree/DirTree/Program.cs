@@ -152,6 +152,9 @@ namespace DirTree
 
         static int Main(string[] args)
         {
+            // Хак для виправленн відображення емодзі в косолі Windows, щоб не було кракозябр.
+            Console.OutputEncoding = Encoding.UTF8;
+
             // Перевіряємо як була запущена програма, і якщо була спроба запустити подвійним кліком, то виводимо повідомлення і чекаємо натискання клавіші.
             if (!IsLaunchedFromConsole())
             {
@@ -470,16 +473,14 @@ namespace DirTree
             _ => $"{bytes / (1024.0 * 1024 * 1024):F2} ГБ"
         };
 
-        // Константи інтерективного меню
-        const string OPT_SAVE_WITH = "💾  Зберегти у файл          (з розмiрами)";
-        const string OPT_SAVE_WITHOUT = "💾  Зберегти у файл          (без розмiрiв)";
-        const string OPT_COPY_WITH = "📋  Скопiювати в буфер       (з розмiрами)";
-        const string OPT_COPY_WITHOUT = "📋  Скопiювати в буфер       (без розмiрiв)";
-        const string OPT_ABOUT = "ℹ️  Про програму та автора";
-        const string OPT_EXIT = "🚪  Вийти з утилiти";
-        const string OPT_EXIT_TERM = "🔴  Вийти з утилiти та закрити термiнал";
-
-        // TODO: Можуть не виводитись емодзі, перевірити метод і змінити, щоб вивід став коректним
+        #region Метод показу меню
+        /// <summary>
+        /// Відображає інтерактивне меню дій для роботи з деревом каталогів.
+        /// Дозволяє зберегти або скопіювати результат із зазначенням розмірів
+        /// файлів чи без них, переглянути інформацію про програму або завершити роботу.
+        /// </summary>
+        /// <param name="treeText">Текстове представлення дерева каталогів, яке використовується для збереження або копіювання.</param>
+        /// <param name="baseDir">Базовий каталог, шлях до якого використовується під час збереження результату у файл.</param>
         static void ShowMenu(string treeText, string baseDir)
         {
             while (true)
@@ -492,30 +493,32 @@ namespace DirTree
                         .Title("Оберiть дiю [grey](↑↓ стрiлки, Enter — вибiр)[/]:")
                         .HighlightStyle(Style.Parse("cyan bold"))
                         .AddChoices(
-                            OPT_SAVE_WITH,
-                            OPT_SAVE_WITHOUT,
-                            OPT_COPY_WITH,
-                            OPT_COPY_WITHOUT,
-                            OPT_ABOUT,
-                            OPT_EXIT,
-                            OPT_EXIT_TERM));
+                            Resources.SaveWith,
+                            Resources.SaveWithout,
+                            Resources.CopyWith,
+                            Resources.CopyWithout,
+                            Resources.AboutProgram,
+                            Resources.Exit,
+                            Resources.ExitAndClose
+                        )
+                );
 
                 AnsiConsole.WriteLine();
 
-                if (choice == OPT_SAVE_WITH) SaveToFile(treeText, baseDir, withSizes: true);
-                else if (choice == OPT_SAVE_WITHOUT) SaveToFile(treeText, baseDir, withSizes: false);
-                else if (choice == OPT_COPY_WITH) CopyText(treeText, withSizes: true);
-                else if (choice == OPT_COPY_WITHOUT) CopyText(treeText, withSizes: false);
-                else if (choice == OPT_ABOUT) ShowAbout();
-                else if (choice == OPT_EXIT)
+                if (choice == Resources.SaveWith) SaveToFile(treeText, baseDir, withSizes: true);
+                else if (choice == Resources.SaveWithout) SaveToFile(treeText, baseDir, withSizes: false);
+                else if (choice == Resources.CopyWith) CopyText(treeText, withSizes: true);
+                else if (choice == Resources.CopyWithout) CopyText(treeText, withSizes: false);
+                else if (choice == Resources.AboutProgram) ShowAbout();
+                else if (choice == Resources.Exit)
                 {
-                    AnsiConsole.MarkupLine("[grey]До побачення![/]");
+                    AnsiConsole.MarkupLine($"[grey]{Resources.Goodby}[/]");
                     AnsiConsole.WriteLine();
                     return;
                 }
-                else if (choice == OPT_EXIT_TERM)
+                else if (choice == Resources.ExitAndClose)
                 {
-                    AnsiConsole.MarkupLine("[grey]Закриваємо термінал...[/]");
+                    AnsiConsole.MarkupLine($"[grey]{Resources.ClosingTerminal}[/]");
                     AnsiConsole.WriteLine();
                     CloseTerminal();
                     return;
@@ -524,6 +527,7 @@ namespace DirTree
                 AnsiConsole.WriteLine();
             }
         }
+        #endregion
 
         /// <summary>
         /// Метод зберження отриманого тексту дерева каталогів у файл в поточному каталозі, за бажанням включаючи інформацію про розмір.
